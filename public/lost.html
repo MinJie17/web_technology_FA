@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Lost Item · QIU</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+      }
+
+      :root {
+        --bg-color: #f3f3f7;
+        --card-bg: #ffffff;
+        --text-dark: #111111;
+        --text-gray: #888888;
+        --border-color: #e6e6e6;
+        --secondary-blue: #3b82f6;
+        --primary-yellow: #fcdc34;
+        --error-red: #e74c3c;
+        --success-green: #2ecc71;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding-top: 90px;
+        padding-bottom: 40px;
+      }
+
+      /* ===== FIXED NAVBAR ===== */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--card-bg);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 40px;
+        z-index: 1000;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .nav-logo-img {
+        height: 44px;
+        width: auto;
+        display: block;
+      }
+
+      .navbar-brand {
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        color: var(--text-dark);
+        text-decoration: none;
+        margin-right: auto;
+        padding-left: 16px;
+      }
+
+      .navbar-links {
+        display: flex;
+        gap: 28px;
+      }
+
+      .navbar-links a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.15s;
+        padding: 6px 0;
+        border-bottom: 2px solid transparent;
+      }
+
+      .navbar-links a:hover {
+        color: var(--secondary-blue);
+        border-bottom-color: var(--secondary-blue);
+      }
+
+      /* card container */
+      .card-container {
+        background-color: var(--card-bg);
+        width: 100%;
+        max-width: 700px;
+        padding: 40px 45px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        margin: 0 20px;
+        transition: all 0.2s;
+      }
+
+      /* progress header */
+      .header-steps {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 36px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        transition: color 0.2s;
+      }
+
+      .step-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        transition: 0.2s;
+      }
+
+      .step.active .step-icon {
+        background-color: var(--secondary-blue);
+        color: white;
+      }
+
+      .step.pending .step-icon {
+        background-color: var(--border-color);
+        color: var(--text-gray);
+      }
+
+      .step.done .step-icon {
+        background-color: var(--primary-yellow);
+        color: var(--text-dark);
+      }
+
+      .step-line {
+        flex-grow: 1;
+        height: 2px;
+        background-color: var(--border-color);
+        margin: 0 12px;
+        transition: background-color 0.2s;
+      }
+
+      .step-line.active {
+        background-color: var(--secondary-blue);
+      }
+
+      /* form sections */
+      .form-section {
+        display: none;
+        animation: fadeIn 0.35s ease;
+      }
+      .form-section.active {
+        display: block;
+      }
+
+      .form-row {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid var(--border-color);
+        padding: 14px 18px;
+        margin-bottom: 14px;
+        border-radius: 12px;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s,
+          transform 0.2s;
+        background-color: #fff;
+      }
+
+      .form-row:focus-within {
+        border-color: var(--secondary-blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .form-row label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+        min-width: 115px;
+        margin-right: 8px;
+      }
+
+      .form-row input,
+      .form-row select,
+      .form-row textarea {
+        border: none;
+        outline: none;
+        flex-grow: 1;
+        font-size: 0.95rem;
+        background: transparent;
+      }
+
+      /* validation effects */
+      .form-row.error {
+        border-color: var(--error-red) !important;
+        background-color: #fff5f5;
+        animation: pulse 0.5s ease;
+      }
+      .form-row.success {
+        border-color: var(--success-green) !important;
+        background-color: #f0fff4;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-5px);
+        }
+        40% {
+          transform: translateX(5px);
+        }
+        60% {
+          transform: translateX(-3px);
+        }
+        80% {
+          transform: translateX(3px);
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .shake {
+        animation: shake 0.3s ease-in-out;
+      }
+
+      .error-msg {
+        color: var(--error-red);
+        font-size: 0.75rem;
+        margin-top: -8px;
+        margin-bottom: 14px;
+        display: none;
+        margin-left: 16px;
+        font-weight: 500;
+        animation: slideDown 0.3s ease;
+      }
+
+      .section-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin: 28px 0 18px 0;
+        letter-spacing: -0.2px;
+      }
+
+      /* UPLOAD BOX */
+      .upload-box {
+        border: 2px dashed #cfcfcf;
+        padding: 36px 20px;
+        text-align: center;
+        border-radius: 18px;
+        cursor: pointer;
+        margin-bottom: 28px;
+        transition:
+          border-color 0.2s,
+          background-color 0.2s,
+          transform 0.2s;
+        background-color: #fafafd;
+      }
+
+      .upload-box:hover {
+        border-color: var(--secondary-blue);
+        background-color: #f2f6ff;
+        transform: translateY(-2px);
+      }
+
+      .upload-box.drag-over {
+        border-color: var(--success-green);
+        background-color: #f0fff4;
+        transform: scale(1.02);
+      }
+
+      /* contact toggle */
+      .contact-toggle {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 18px;
+        background: #f0f2f5;
+        padding: 6px;
+        border-radius: 40px;
+        max-width: 280px;
+      }
+
+      .contact-option {
+        flex: 1;
+        text-align: center;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-gray);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      .contact-option.active {
+        background: white;
+        color: var(--text-dark);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        font-weight: 700;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .btn-submit {
+        background-color: var(--secondary-blue);
+        color: white;
+        border: none;
+        padding: 16px 22px;
+        width: 100%;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+
+      .btn-outline {
+        background: transparent;
+        color: var(--text-dark);
+        border: 1.5px solid var(--border-color);
+        padding: 16px 22px;
+        width: 100%;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+
+      /* preview box */
+      .preview-box {
+        background: #f8f9fd;
+        border: 1px solid var(--border-color);
+        padding: 22px;
+        border-radius: 18px;
+        margin-bottom: 24px;
+      }
+
+      .preview-item {
+        margin-bottom: 14px;
+        padding: 8px;
+        border-bottom: 1px dashed var(--border-color);
+      }
+
+      .preview-item:last-child {
+        border-bottom: none;
+      }
+
+      .preview-item label {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--text-gray);
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      .preview-item p {
+        font-weight: 500;
+        color: var(--text-dark);
+      }
+
+      .success-view {
+        display: none;
+        text-align: center;
+        padding: 30px 10px;
+      }
+
+      .char-counter {
+        text-align: right;
+        font-size: 0.7rem;
+        color: var(--text-gray);
+        margin-top: -10px;
+        margin-bottom: 10px;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <img src="image/logo.webp" alt="QIU logo" class="nav-logo-img" />
+      <a href="#" class="navbar-brand">QIU Lost & Found</a>
+      <div class="navbar-links">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+      </div>
+    </nav>
+
+    <div class="card-container">
+      <div id="formView">
+        <div class="header-steps">
+          <div class="step active" id="step1-indicator">
+            <div class="step-icon">1</div>
+            Item details
+          </div>
+          <div class="step-line" id="line1"></div>
+          <div class="step pending" id="step2-indicator">
+            <div class="step-icon">2</div>
+            Contact
+          </div>
+          <div class="step-line" id="line2"></div>
+          <div class="step pending" id="step3-indicator">
+            <div class="step-icon">3</div>
+            Review
+          </div>
+        </div>
+
+        <form id="lostForm" novalidate>
+          <input type="hidden" name="item_type" value="Lost" />
+          <input type="hidden" name="status" value="Active" />
+          <input type="hidden" name="location" id="db_location" value="" />
+          <input type="hidden" name="contact" id="db_contact" value="" />
+
+          <div class="form-section active" id="section1">
+            <div class="form-row validate-row" id="titleRow">
+              <label for="title">Item Name:</label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                placeholder="e.g. Black Wallet"
+                required
+              />
+            </div>
+            <div class="error-msg" id="titleError">
+              Item name is required (min 3 chars)
+            </div>
+
+            <div class="form-row validate-row" id="categoryRow">
+              <label for="category">Category:</label>
+              <select id="category" name="category" required>
+                <option value="" disabled selected>Select Category</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Documents">Documents/IDs</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="error-msg" id="categoryError">
+              Please select a category
+            </div>
+
+            <div class="form-row validate-row" id="locationRow">
+              <label for="location_input">Location:</label>
+              <input
+                type="text"
+                id="location_input"
+                placeholder="e.g. Library Level 2, Block A"
+                required
+              />
+            </div>
+            <div class="error-msg" id="locationError">
+              Please specify where it was lost
+            </div>
+
+            <div class="form-row validate-row" id="dateRow">
+              <label for="lost_date">Date Lost:</label>
+              <input type="date" id="lost_date" name="lost_date" required />
+            </div>
+            <div class="error-msg" id="dateError">
+              Please select a valid date
+            </div>
+
+            <div class="form-row validate-row" id="descRow">
+              <label for="description">Description:</label>
+              <textarea
+                id="description"
+                name="description"
+                placeholder="Brand, color..."
+                required
+                rows="2"
+              ></textarea>
+            </div>
+            <div class="char-counter" id="descCounter">0/500</div>
+            <div class="error-msg" id="descError">Minimum 5 characters</div>
+
+            <p class="section-title">Image upload (optional)</p>
+            <div class="upload-box" id="dropZone">
+              <input
+                type="file"
+                id="image_path"
+                name="image"
+                hidden
+                accept="image/*"
+              />
+              <p class="upload-text">
+                <a href="#" id="triggerUpload">Click to upload</a> or drag &
+                drop
+              </p>
+              <p
+                id="fileNameDisplay"
+                style="
+                  margin-top: 8px;
+                  font-size: 0.8rem;
+                  color: #3b82f6;
+                  display: none;
+                "
+              ></p>
+            </div>
+
+            <button type="button" class="btn-submit" id="btnNext1">
+              Continue to Contact
+            </button>
+          </div>
+
+          <div class="form-section" id="section2">
+            <p class="section-title" style="margin-top: 0">
+              How should we contact you?
+            </p>
+            <div class="contact-toggle">
+              <button
+                type="button"
+                class="contact-option active"
+                id="toggleEmail"
+              >
+                Email
+              </button>
+              <button type="button" class="contact-option" id="togglePhone">
+                Phone
+              </button>
+            </div>
+            <div id="emailContactRow">
+              <div class="form-row validate-row">
+                <label for="contactEmail">QIU Email:</label>
+                <input
+                  type="email"
+                  id="contactEmail"
+                  placeholder="Loading..."
+                  readonly
+                  style="
+                    color: var(--text-gray);
+                    background-color: transparent;
+                    cursor: not-allowed;
+                  "
+                  value=""
+                />
+              </div>
+              <div class="error-msg" id="emailError">
+                Must be a valid @qiu.edu.my address
+              </div>
+            </div>
+            <div id="phoneContactRow" style="display: none">
+              <div class="form-row validate-row">
+                <label for="contactPhone">Phone:</label>
+                <input type="tel" id="contactPhone" placeholder="012-3456789" />
+              </div>
+              <div class="error-msg" id="phoneError">
+                Phone number is required
+              </div>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn-outline" id="btnBack1">
+                Back
+              </button>
+              <button type="button" class="btn-submit" id="btnNext2">
+                Review Details
+              </button>
+            </div>
+          </div>
+
+          <div class="form-section" id="section3">
+            <p class="section-title">Review your report</p>
+            <div class="preview-box">
+              <div class="preview-item">
+                <label>Item Name</label>
+                <p id="prev-title">-</p>
+              </div>
+              <div class="preview-item">
+                <label>Category</label>
+                <p id="prev-category">-</p>
+              </div>
+              <div class="preview-item">
+                <label>Location</label>
+                <p id="prev-location">-</p>
+              </div>
+              <div class="preview-item">
+                <label>Date</label>
+                <p id="prev-date">-</p>
+              </div>
+              <div class="preview-item">
+                <label>Description</label>
+                <p id="prev-desc">-</p>
+              </div>
+              <div class="preview-item">
+                <label>Contact</label>
+                <p id="prev-contact">-</p>
+              </div>
+              <div class="preview-item">
+                <label>Image</label>
+                <p id="prev-image">No image</p>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn-outline" id="btnBack2">
+                Edit
+              </button>
+              <button type="submit" class="btn-submit" id="submitBtn">
+                Submit Report
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div id="successView" class="success-view">
+        <h2 style="color: var(--success-green); margin-bottom: 10px">
+          Report Submitted!
+        </h2>
+        <p>Your report has been successfully recorded in our system.</p>
+        <div class="btn-group">
+          <a
+            href="dashboard.html"
+            class="btn-submit"
+            style="text-decoration: none; text-align: center"
+            >View Dashboard</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // Fetch logged-in user's email automatically
+        async function loadUserData() {
+          try {
+            const response = await fetch("/api/user/me");
+            const data = await response.json();
+
+            if (data.success && data.user) {
+              // Put the logged-in user's email into the input box
+              document.getElementById("contactEmail").value = data.user.email;
+            } else {
+              // If they aren't logged in, redirect them to the login page
+              window.location.href = "login.html";
+            }
+          } catch (err) {
+            console.error("Failed to load user data:", err);
+          }
+        }
+
+        // Run this function as soon as the page loads
+        loadUserData();
+
+        const form = document.getElementById("lostForm");
+        const formView = document.getElementById("formView");
+        const successView = document.getElementById("successView");
+        const section1 = document.getElementById("section1"),
+          section2 = document.getElementById("section2"),
+          section3 = document.getElementById("section3");
+        const btnNext1 = document.getElementById("btnNext1"),
+          btnBack1 = document.getElementById("btnBack1"),
+          btnNext2 = document.getElementById("btnNext2"),
+          btnBack2 = document.getElementById("btnBack2");
+        const step1Ind = document.getElementById("step1-indicator"),
+          step2Ind = document.getElementById("step2-indicator"),
+          step3Ind = document.getElementById("step3-indicator");
+        const line1 = document.getElementById("line1"),
+          line2 = document.getElementById("line2");
+        const locationInput = document.getElementById("location_input");
+        const locationError = document.getElementById("locationError");
+        const toggleEmailBtn = document.getElementById("toggleEmail"),
+          togglePhoneBtn = document.getElementById("togglePhone");
+        const emailRowDiv = document.getElementById("emailContactRow"),
+          phoneRowDiv = document.getElementById("phoneContactRow");
+        const emailInput = document.getElementById("contactEmail"),
+          phoneInput = document.getElementById("contactPhone");
+        const emailError = document.getElementById("emailError"),
+          phoneError = document.getElementById("phoneError");
+        const dropZone = document.getElementById("dropZone"),
+          fileInput = document.getElementById("image_path"),
+          triggerUpload = document.getElementById("triggerUpload"),
+          fileNameDisplay = document.getElementById("fileNameDisplay");
+        const descInput = document.getElementById("description"),
+          descCounter = document.getElementById("descCounter"),
+          descError = document.getElementById("descError");
+
+        function validateSection(section) {
+          let isValid = true;
+          if (section.id === "section1") {
+            const title = document.getElementById("title");
+            if (!title.value.trim() || title.value.trim().length < 3) {
+              isValid = false;
+              document
+                .getElementById("titleRow")
+                .classList.add("error", "shake");
+              document.getElementById("titleError").style.display = "block";
+            } else {
+              document.getElementById("titleRow").classList.remove("error");
+              document.getElementById("titleRow").classList.add("success");
+              document.getElementById("titleError").style.display = "none";
+            }
+
+            if (!document.getElementById("category").value) {
+              isValid = false;
+              document.getElementById("categoryRow").classList.add("error");
+              document.getElementById("categoryError").style.display = "block";
+            } else {
+              document.getElementById("categoryRow").classList.remove("error");
+              document.getElementById("categoryRow").classList.add("success");
+              document.getElementById("categoryError").style.display = "none";
+            }
+
+            if (!locationInput.value.trim()) {
+              isValid = false;
+              document.getElementById("locationRow").classList.add("error");
+              locationError.style.display = "block";
+            } else {
+              document.getElementById("locationRow").classList.remove("error");
+              document.getElementById("locationRow").classList.add("success");
+              locationError.style.display = "none";
+            }
+
+            if (!document.getElementById("lost_date").value) {
+              isValid = false;
+              document.getElementById("dateRow").classList.add("error");
+              document.getElementById("dateError").style.display = "block";
+            } else {
+              document.getElementById("dateRow").classList.remove("error");
+              document.getElementById("dateRow").classList.add("success");
+              document.getElementById("dateError").style.display = "none";
+            }
+
+            if (!descInput.value.trim() || descInput.value.length < 5) {
+              isValid = false;
+              document.getElementById("descRow").classList.add("error");
+              descError.style.display = "block";
+            } else {
+              document.getElementById("descRow").classList.remove("error");
+              document.getElementById("descRow").classList.add("success");
+              descError.style.display = "none";
+            }
+          }
+
+          if (section.id === "section2") {
+            if (emailRowDiv.style.display !== "none") {
+              // Email is pre-filled and readonly, but we still ensure it matches domain format
+              if (!emailInput.value.toLowerCase().endsWith("@qiu.edu.my")) {
+                isValid = false;
+                emailError.innerText =
+                  "System error: Invalid QIU email domain.";
+                emailError.style.display = "block";
+              } else {
+                emailError.style.display = "none";
+              }
+            } else {
+              // Strict Phone Format Validation (e.g. 0123456789 or 012-3456789)
+              const phoneRegex = /^01\d{1}-?\d{7,8}$/;
+
+              if (
+                !phoneInput.value.trim() ||
+                !phoneRegex.test(phoneInput.value.trim())
+              ) {
+                isValid = false;
+                phoneError.innerText =
+                  "Please enter a valid format (e.g., 012-3456789)";
+                phoneError.style.display = "block";
+              } else {
+                phoneError.style.display = "none";
+              }
+            }
+          }
+          return isValid;
+        }
+
+        descInput.addEventListener("input", function () {
+          descCounter.innerText = `${this.value.length}/500`;
+        });
+
+        function setContactMode(mode) {
+          const isEmail = mode === "email";
+          toggleEmailBtn.classList.toggle("active", isEmail);
+          togglePhoneBtn.classList.toggle("active", !isEmail);
+          emailRowDiv.style.display = isEmail ? "block" : "none";
+          phoneRowDiv.style.display = isEmail ? "none" : "block";
+        }
+
+        toggleEmailBtn.onclick = () => setContactMode("email");
+        togglePhoneBtn.onclick = () => setContactMode("phone");
+
+        btnNext1.onclick = () => {
+          if (validateSection(section1)) {
+            section1.classList.remove("active");
+            section2.classList.add("active");
+            step1Ind.classList.replace("active", "done");
+            step1Ind.querySelector(".step-icon").innerText = "✓";
+            line1.classList.add("active");
+            step2Ind.classList.replace("pending", "active");
+          }
+        };
+
+        btnBack1.onclick = () => {
+          section2.classList.remove("active");
+          section1.classList.add("active");
+          step1Ind.classList.replace("done", "active");
+          step1Ind.querySelector(".step-icon").innerText = "1";
+          line1.classList.remove("active");
+          step2Ind.classList.replace("active", "pending");
+        };
+
+        btnNext2.onclick = () => {
+          if (validateSection(section2)) {
+            document.getElementById("prev-title").innerText =
+              document.getElementById("title").value;
+            document.getElementById("prev-category").innerText =
+              document.getElementById("category").value;
+            document.getElementById("prev-location").innerText =
+              locationInput.value;
+            document.getElementById("prev-date").innerText =
+              document.getElementById("lost_date").value;
+            document.getElementById("prev-desc").innerText = descInput.value;
+
+            document.getElementById("prev-contact").innerText =
+              emailRowDiv.style.display !== "none"
+                ? emailInput.value
+                : phoneInput.value;
+
+            document.getElementById("prev-image").innerText = fileInput.files
+              .length
+              ? `📎 ${fileInput.files[0].name}`
+              : "No image uploaded";
+
+            section2.classList.remove("active");
+            section3.classList.add("active");
+            step2Ind.classList.replace("active", "done");
+            step2Ind.querySelector(".step-icon").innerText = "✓";
+            line2.classList.add("active");
+            step3Ind.classList.replace("pending", "active");
+          }
+        };
+
+        btnBack2.onclick = () => {
+          section3.classList.remove("active");
+          section2.classList.add("active");
+          step2Ind.classList.replace("done", "active");
+          step2Ind.querySelector(".step-icon").innerText = "2";
+          line2.classList.remove("active");
+          step3Ind.classList.replace("active", "pending");
+        };
+
+        triggerUpload.onclick = (e) => {
+          e.preventDefault();
+          fileInput.click();
+        };
+
+        fileInput.onchange = () => {
+          if (fileInput.files.length) {
+            fileNameDisplay.style.display = "block";
+            fileNameDisplay.innerText = "📎 " + fileInput.files[0].name;
+          }
+        };
+
+        form.onsubmit = async (e) => {
+          e.preventDefault();
+          const submitBtn = document.getElementById("submitBtn");
+          submitBtn.innerText = "Submitting...";
+          submitBtn.disabled = true;
+
+          // Put data from the standalone inputs into the hidden inputs meant for the database
+          document.getElementById("db_location").value = locationInput.value;
+          document.getElementById("db_contact").value =
+            emailRowDiv.style.display !== "none"
+              ? emailInput.value
+              : phoneInput.value;
+
+          try {
+            const response = await fetch("/api/reports", {
+              method: "POST",
+              body: new FormData(form),
+            });
+            const result = await response.json();
+
+            if (result.success) {
+              formView.style.display = "none";
+              successView.style.display = "block";
+            } else {
+              alert("Error: " + result.error);
+              submitBtn.innerText = "Submit Report";
+              submitBtn.disabled = false;
+            }
+          } catch (err) {
+            alert("Server error. Check your connection.");
+            submitBtn.innerText = "Submit Report";
+            submitBtn.disabled = false;
+          }
+        };
+
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("lost_date").setAttribute("max", today);
+        setContactMode("email");
+      })();
+    </script>
+  </body>
+</html>

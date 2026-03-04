@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QIU | 404 Page</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Global Reset & Fonts */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      .error-page {
+        background-color: #0f172a;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        margin: 0;
+        color: white;
+      }
+
+      .error-container {
+        text-align: center;
+        z-index: 10;
+      }
+
+      .floating-human {
+        width: 280px;
+        height: auto;
+        margin-bottom: 20px;
+        animation: float 4s ease-in-out infinite;
+      }
+
+      .glow-text {
+        font-size: 5rem;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -2px;
+      }
+
+      .sub-text {
+        color: #94a3b8;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+      }
+
+      .btn-home {
+        display: inline-block;
+        background-color: #2563eb;
+        color: white !important;
+        padding: 12px 30px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border: none;
+      }
+
+      .btn-home:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+    </style>
+  </head>
+  <body class="error-page">
+    <div class="error-container">
+      <div class="astronaut-wrapper">
+        <img
+          src="image/astronaut.jpg"
+          alt="404 Astronaut"
+          class="floating-human"
+        />
+      </div>
+
+      <div class="error-text-container">
+        <h1 class="glow-text">404</h1>
+        <p class="sub-text">it looks like you're lost...</p>
+
+        <div class="btn-group">
+          <a href="index.html" class="btn-home">Bring Me Home</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stars"></div>
+    <div class="stars2"></div>
+  </body>
+</html>
