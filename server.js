@@ -37,7 +37,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 /* LOST & FOUND DATA API ROUTES */
-// 1. Submit New Report (Lost/Found Item)
+// Submit New Report (Lost/Found Item)
 app.post("/api/reports", upload.single("image"), (req, res) => {
   // Check if user is logged in to get their ID
   if (!req.session.user) {
