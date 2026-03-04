@@ -95,7 +95,7 @@ app.post("/api/reports", upload.single("image"), (req, res) => {
   }
 });
 
-// 2. Get All Items (For items.html and found.html)
+// Get All Items (For items.html and found.html)
 app.get("/api/items", (req, res) => {
   const sql = `
     SELECT 
@@ -125,7 +125,7 @@ app.get("/api/items", (req, res) => {
 });
 
 /* USER AUTHENTICATION API ROUTES */
-// 1. Register User
+// Register User
 app.post("/api/register", (req, res) => {
   const { username, email, password } = req.body;
   const strengthRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
@@ -182,7 +182,7 @@ app.post("/api/register", (req, res) => {
   );
 });
 
-// 2. Login User
+// Login User
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
   const sql = "SELECT * FROM user WHERE email = ?";
@@ -252,10 +252,10 @@ app.post("/api/forgot-password", async (req, res) => {
         }
 
         try {
-          // 3️⃣ Hash new password
+          // Hash new password
           const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-          // 4️⃣ Update password in MySQL
+          // Update password in MySQL
           db.query(
             "UPDATE user SET password = ?, updated_at = NOW() WHERE email = ?",
             [hashedPassword, email],
